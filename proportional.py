@@ -5,7 +5,7 @@ def highest_averages(divisor, num_seats, votes, guaranteed_min_seats=0, majority
     total_votes = sum(votes[party] for party in votes)
     seat_guarantee_quota = total_votes / num_seats
 
-    print(f"Quota: {seat_guarantee_quota}")
+    # print(f"Quota: {seat_guarantee_quota}")
 
     # Majority and supermajority quotas
     majority_seats = math.floor(num_seats / 2) + 1
@@ -18,7 +18,7 @@ def highest_averages(divisor, num_seats, votes, guaranteed_min_seats=0, majority
         result[party] = min(guaranteed_min_seats, math.floor(votes[party] / seat_guarantee_quota))
         num_seats -= result[party]
     
-    print(f"After quota-based apportionment, remaining seats={num_seats}, votes={result}")
+    # print(f"After quota-based apportionment, remaining seats={num_seats}, votes={result}")
     
     # Use divisor priority to fill remaining seats
     for n in range(num_seats):
@@ -42,8 +42,8 @@ def highest_averages(divisor, num_seats, votes, guaranteed_min_seats=0, majority
 
         result[max_quotient_party] += 1
 
-        print(f"round={n}, quotients={quotients}")
-        print(f"{n+1}/{num_seats} elected {max_quotient_party}")
+        # print(f"round={n}, quotients={quotients}")
+        # print(f"{n+1}/{num_seats} elected {max_quotient_party}")
 
     return result
 
@@ -117,7 +117,7 @@ def stv(num_seats, votes):
             counts = {}
             excess = 0
         else:
-            print(f"No candidates can be eliminated; counts={counts}")
+            # print(f"No candidates can be eliminated; counts={counts}")
             break
     
     return list(elected)
