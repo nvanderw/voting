@@ -1,48 +1,25 @@
 import random
 from proportional import stv
+from util import shuffled
+from misc.players import all_players
 
 # Example election: voters are purely partisan and vote for their party's candidates in random order
-if __name__ == '__main__':
-    def shuffled(seq):
-        l = list(seq)
-        random.shuffle(l)
-        return l
+if __name__ == "__main__":
+    parties = {}
+    num_approx_candidates = 100
 
-    parties = {
-        "Red": [
-            "Sleve McDichael",
-            "Onson Sweemey",
-            "Darryl Archideld",
-            "Anatoli Smorin",
-            "Rey McSriff",
-            "Glenallen Mixon",
-            "Mario McRlwain",
-        ],
-        "Green": [
-            "Raul Chamgerlain",
-            "Kevin Nogilny",
-            "Tony Smehrik",
-            "Bobson Dugnutt",
-            "Willie Dustice",
-            "Jeromy Gride",
-            "Scott Dourque",
-        ],
-        "Blue": [
-            "Shown Furcotte",
-            "Dean Wesrey",
-            "Mike Truk",
-            "Dwigt Rortugal",
-            "Tim Sandaele",
-            "Karl Dandleton",
-            "Mike Sernandez",
-            "Todd Bonzalez"
-        ]
-    }
+    for player in all_players:
+        if random.random() > num_approx_candidates / len(all_players):
+            continue
+        if player.team not in parties:
+            parties[player.team] = [player.name]
+        else:
+            parties[player.team].append(player.name)
 
     ballots = []
     party_sizes = {}
     for party in parties:
-        party_sizes[party] = random.randrange(5000, 15001)
+        party_sizes[party] = random.randrange(100, 5000)
         for voter in range(party_sizes[party]):
             ballots.append([f"({party}) {c}" for c in shuffled(parties[party])])
 
