@@ -6,3 +6,9 @@ dependencies = []
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
+
+[tools.setuptools.packages.find]
+where = ["voting"]
+
+[tool.setuptools.package-data]
+"*" = ["*.csv"]

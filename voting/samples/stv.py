@@ -1,7 +1,7 @@
 import random
-from proportional import stv
-from util import shuffled
-from misc.players import all_players
+from voting.proportional import stv
+from voting.util import shuffled
+from voting.misc.players import all_players
 
 # Example election: voters are purely partisan and vote for their party's candidates in random order
 if __name__ == "__main__":
