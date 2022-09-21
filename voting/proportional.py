@@ -23,7 +23,7 @@ def highest_averages(
     super_votes = math.ceil(2 * total_votes / 3)
     for party in votes:
         # Calculate how many whole seats each party gets.
-        result[party] = min(
+        result[party] = max(
             guaranteed_min_seats, math.floor(votes[party] / seat_guarantee_quota)
         )
         num_seats -= result[party]
