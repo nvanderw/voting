@@ -74,78 +74,79 @@ def piecewise_huntington_hill(num_seats, votes, **kwargs):
     )
 
 
-def stv(num_seats, votes):
+def stv(num_seats, votes, starting_elected=None):
     weights = {}
-    elected = set()
+    elected = set() if starting_elected is None else starting_elected
 
-    while len(elected) < num_seats:
-        transferring_surplus_votes = True
+    def count_votes():
         counts = {}
+        excess = 0
 
-        while transferring_surplus_votes:
-            total_votes = 0
-            excess = 0
+        for ballot in votes:
+            vote_remaining = 1
 
-            for ballot in votes:
-                vote_remaining = 1
+            for candidate in ballot:
+                if candidate not in weights:
+                    weights[candidate] = 1  # Hopeful
 
-                for candidate in ballot:
-                    if candidate not in weights:
-                        weights[candidate] = 1  # Hopeful
-
-                    if candidate not in counts:
-                        counts[candidate] = 0
-
-                    counts[candidate] += vote_remaining * weights[candidate]
-                    vote_remaining *= 1 - weights[candidate]
-                    if vote_remaining == 0:
-                        break
-
-                excess += vote_remaining
-
-                total_votes += 1
-
-            quota = (total_votes - excess) / (num_seats + 1)
-            # print(f"quota={quota}, counts={counts}, weights={weights}, excess={excess}")
-
-            transferring_surplus_votes = False
-            if quota == 0:
-                # All votes are going to excess; we can't elect any more seats.
-                break
-
-            for candidate in counts:
-                if weights[candidate] == 0:
+                elif weights[candidate] == 0:
                     continue  # Excluded
 
-                if candidate not in elected and counts[candidate] >= quota:
-                    elected.add(candidate)
-                    # print(f"{len(elected)}/{num_seats} candidate {candidate} elected")
+                if candidate not in counts:
+                    counts[candidate] = 0
 
-                if (
-                    candidate in elected
-                    and abs(counts[candidate] - quota) / quota > 0.000001
-                ):
-                    weights[candidate] *= quota / counts[candidate]
+                counts[candidate] += vote_remaining * weights[candidate]
+                vote_remaining *= 1 - weights[candidate]
+                if vote_remaining == 0:
+                    break
+
+            excess += vote_remaining
+
+        return counts, excess
+
+    def update_weights():
+        transferring_surplus_votes = True
+
+        while transferring_surplus_votes:
+            counts, excess = count_votes()
+            quota = (len(votes) - excess) / (num_seats + 1)
+
+            # print(f"quota={quota}, excess={excess}, counts={counts}, weights={weights}")
+
+            transferring_surplus_votes = False
+            for elect in elected:
+                if (counts[elect] - quota) / quota > 0.000001:
                     transferring_surplus_votes = True
+                    weights[elect] *= quota / counts[elect]
 
-            if transferring_surplus_votes:
-                counts = {}
+        return counts, quota
 
-        # Eliminate the Hopeful candidate with the lowest count
-        can_be_eliminated_candidates = list(
-            (candidate, counts[candidate])
-            for candidate in counts
-            if candidate not in elected and weights[candidate] > 0
-        )
-        if len(can_be_eliminated_candidates) > 0:
-            lowest_candidate, _ = min(can_be_eliminated_candidates, key=lambda x: x[1])
-            # print(f"{lowest_candidate} eliminated")
-            weights[lowest_candidate] = 0
-            counts = {}
-            excess = 0
-        else:
-            # print(f"No candidates can be eliminated; counts={counts}")
-            break
+    while len(elected) < num_seats:
+        counts, quota = update_weights()
+
+        elected_new_candidate = False
+        for candidate in counts:
+            if candidate not in elected and counts[candidate] > quota:
+                elected.add(candidate)
+                # print(f"{len(elected)}/{num_seats} {candidate} elected")
+                elected_new_candidate = True
+
+        if not elected_new_candidate:
+            # Eliminate the Hopeful candidate with the lowest count
+            can_be_eliminated_candidates = list(
+                (candidate, counts[candidate])
+                for candidate in counts
+                if candidate not in elected and weights[candidate] > 0
+            )
+            if len(can_be_eliminated_candidates) > 0:
+                lowest_candidate, _ = min(
+                    can_be_eliminated_candidates, key=lambda x: x[1]
+                )
+                # print(f"{lowest_candidate} eliminated")
+                weights[lowest_candidate] = 0
+            else:
+                # print(f"No candidates can be eliminated; counts={counts}")
+                break
 
     return list(elected)
 
