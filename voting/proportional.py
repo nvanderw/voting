@@ -73,6 +73,30 @@ def piecewise_huntington_hill(num_seats, votes, **kwargs):
         lambda k: k if k <= 1 else math.sqrt(k * (k - 1)), num_seats, votes, **kwargs
     )
 
+def hare_quota(votes, seats):
+    return math.ceil(votes / seats)
+
+def droop_quota(votes, seats):
+    return math.floor(votes / (seats + 1)) + 1
+
+def largest_remainder(quota_fn, num_seats, votes):
+    total_votes = sum(votes.values())
+    quota = quota_fn(total_votes, num_seats)
+
+    seats = {}
+    remainders = {}
+    num_seats_allocated = 0
+    for party in votes:
+        seats[party] = votes[party] // quota
+        remainders[party] = votes[party] % quota
+        num_seats_allocated += seats[party]
+    
+    for _ in range(num_seats - num_seats_allocated):
+        highest_remainder_party = max(remainders, key=lambda p: remainders[p])
+        seats[highest_remainder_party] += 1
+        remainders[highest_remainder_party] = 0
+    
+    return seats
 
 def stv(num_seats, votes, starting_elected=None):
     weights = {}
