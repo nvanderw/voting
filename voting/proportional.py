@@ -64,8 +64,8 @@ def highest_averages(
     return result
 
 
-def dhondt(num_seats, votes):
-    return highest_averages(lambda k: k, num_seats, votes)
+def dhondt(num_seats, votes, **kwargs):
+    return highest_averages(lambda k: k, num_seats, votes, **kwargs)
 
 
 def piecewise_huntington_hill(num_seats, votes, **kwargs):
